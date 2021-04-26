@@ -23,6 +23,8 @@ func doSend() {
 		fmt.Printf("connect failed, err: %v\n", err.Error())
 		return
 	}
+
+	//如果不关闭,无法释放连接
 	defer conn.Close()
 
 	//2.读取命令行输入

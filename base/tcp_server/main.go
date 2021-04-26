@@ -27,6 +27,7 @@ func main() {
 }
 
 func process(conn net.Conn) {
+	//会导致四次挥手状态 卡死的问题
 	defer conn.Close() //关闭连接
 
 	for true {
