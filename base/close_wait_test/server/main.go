@@ -23,6 +23,8 @@ func main() {
 
 		//3.创建协程
 		go func(conn net.Conn) {
+			defer conn.Close() //协程退出一定要关闭资源,否则会一直占用
+
 			for true {
 				var buf [128]byte
 				n, err := conn.Read(buf[:])
