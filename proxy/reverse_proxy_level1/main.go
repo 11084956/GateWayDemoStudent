@@ -109,7 +109,7 @@ func NewMultipleHostsReverseProxy(targets []*url.URL) *httputil.ReverseProxy {
 
 func singleJoiningSlash(a, b string) string {
 	aslash := strings.HasSuffix(a, "/")
-	bslash := strings.HasSuffix(b, "/")
+	bslash := strings.HasPrefix(b, "/")
 
 	switch {
 	case aslash && bslash:
