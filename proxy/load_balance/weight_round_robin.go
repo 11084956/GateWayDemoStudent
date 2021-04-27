@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-//加载负载均衡
+//加权负载均衡
 type WeightRoundRobinBalance struct {
 	curIndex int
 	rss      []*WeightNode
