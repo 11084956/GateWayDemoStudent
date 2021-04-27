@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+//随机负载均衡
 type RandomBalance struct {
 	curIndex int
 	rss      []string
