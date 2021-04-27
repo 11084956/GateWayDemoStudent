@@ -81,7 +81,8 @@ func (r *WeightRoundRobinBalance) Next() string {
 	return base.addr
 }
 
-func (r *WeightRoundRobinBalance) Get() (string, error) {
+//这里的参数为了兼容接口传入的
+func (r *WeightRoundRobinBalance) Get(str string) (string, error) {
 	return r.Next(), nil
 }
 
