@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net"
 	"net/http"
@@ -28,6 +29,27 @@ var (
 		ExpectContinueTimeout: 1 * time.Second,
 	}
 )
+
+func main() {
+	//rs1 := "http://www.baidu.com"
+	rs1 := "http://127.0.0.1:2003"
+	url1, err1 := url.Parse(rs1)
+	if err1 != nil {
+		log.Println(err1)
+	}
+
+	//rs2 := "http://www.baidu.com"
+	rs2 := "http://127.0.0.1:2004"
+	url2, err2 := url.Parse(rs2)
+	if err2 != nil {
+		log.Println(err2)
+	}
+
+	urls := []*url.URL{url1, url2}
+	proxy := NewMultipleHostsReverseProxy(urls)
+	log.Println("Starting httpserver at " + addr)
+	log.Fatal(http.ListenAndServe(addr, proxy))
+}
 
 func NewMultipleHostsReverseProxy(targets []*url.URL) *httputil.ReverseProxy {
 	//请求协调者
@@ -71,7 +93,7 @@ func NewMultipleHostsReverseProxy(targets []*url.URL) *httputil.ReverseProxy {
 		//请求以下命令：curl 'http://127.0.0.1:2002/error'
 		//兼容websocket
 
-		if strings.Contains(resp.Header.Get("Connecttion"), "Upgrade") {
+		if strings.Contains(resp.Header.Get("Connection"), "Upgrade") {
 			return nil
 		}
 
@@ -88,7 +110,7 @@ func NewMultipleHostsReverseProxy(targets []*url.URL) *httputil.ReverseProxy {
 			}
 
 			payload, readErr = ioutil.ReadAll(gr)
-			resp.Header.Del("Content-Encodeing")
+			resp.Header.Del("Content-Encoding")
 		} else {
 			payload, readErr = ioutil.ReadAll(resp.Body)
 		}
@@ -125,7 +147,7 @@ func NewMultipleHostsReverseProxy(targets []*url.URL) *httputil.ReverseProxy {
 
 func singleJoiningSlash(a, b string) string {
 	aslash := strings.HasSuffix(a, "/")
-	bslash := strings.HasSuffix(b, "/")
+	bslash := strings.HasPrefix(b, "/")
 
 	switch {
 	case aslash && bslash:
