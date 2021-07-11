@@ -77,7 +77,7 @@ type SliceRouterHandler struct {
 	router   *SliceRouter
 }
 
-func (w *SliceRouterHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request)  {
+func (w *SliceRouterHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	c := newSliceRouterContext(rw, req, w.router)
 
 	if w.coreFunc != nil {
@@ -94,9 +94,17 @@ func NewSliceRouterHandler(coreFunc func(*SliceRouterContext) http.Handler, rout
 	}
 }
 
-//创建group
+//创建 router
 func NewSliceRouter() *SliceRouter {
 	return &SliceRouter{}
+}
+
+//创建 group
+func (g *SliceRouter) Group(path string) *SliceGroup {
+	return &SliceGroup{
+		SliceRouter: g,
+		path:        path,
+	}
 }
 
 //构造回调方法
