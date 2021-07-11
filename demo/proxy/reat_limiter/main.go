@@ -3,6 +3,8 @@ package reat_limiter
 import (
 	"GateWayDemoStudent/demo/proxy/middleware"
 	"GateWayDemoStudent/demo/proxy/proxy"
+	"fmt"
+	"golang.org/x/time/rate"
 	"log"
 	"net/http"
 	"net/url"
@@ -38,4 +40,19 @@ func main() {
 	routerHandler := middleware.NewSliceRouterHandler(coreFunc, sliceRouter)
 
 	log.Fatal(http.ListenAndServe(addr, routerHandler))
+}
+
+func RateLimiter() func(ctx *middleware.SliceRouterContext) {
+	l := rate.NewLimiter(1, 2)
+
+	return func(c *middleware.SliceRouterContext) {
+		if !l.Allow() {
+			c.Rw.Write([]byte(fmt.Sprintf("rate limit: %v:%v", l.Limit(), l.Burst())))
+
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
 }
