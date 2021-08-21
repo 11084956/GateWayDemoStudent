@@ -1,4 +1,4 @@
-package real_server
+package main
 
 import (
 	"GateWayDemoStudent/demo/proxy/reverse_proxy_https/testdata"
@@ -6,6 +6,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"golang.org/x/net/http2"
@@ -27,6 +30,23 @@ openssl req -new -key server.key -subj "/CN=example1.com" -out server.csr
 openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 5000
 */
 
+func main() {
+	rs1 := &RealServer{
+		Addr: "127.0.0.1:3003",
+	}
+	rs1.Run()
+
+	rs2 := &RealServer{
+		Addr: "127.0.0.1:3004",
+	}
+	rs2.Run()
+
+	//监听关闭信号
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+}
+
 type RealServer struct {
 	Addr string
 }
@@ -45,7 +65,11 @@ func (r *RealServer) Run() {
 	}
 
 	go func() {
-		http2.ConfigureServer(server, &http2.Server{})
+		err := http2.ConfigureServer(server, &http2.Server{})
+		if err != nil {
+			fmt.Println("http2服务启动失败:", err)
+			return
+		}
 
 		log.Fatal(server.ListenAndServeTLS(testdata.Path("server.crt"), testdata.Path("server.key")))
 	}()
@@ -54,6 +78,7 @@ func (r *RealServer) Run() {
 func (r *RealServer) HelloHandler(w http.ResponseWriter, req *http.Request) {
 	upath := fmt.Sprintf("http://%s%s\n", r.Addr, req.URL.Path)
 
+	fmt.Println(upath)
 	_, _ = io.WriteString(w, upath)
 }
 

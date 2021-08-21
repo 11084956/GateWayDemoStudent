@@ -4,6 +4,8 @@ import (
 	"GateWayDemoStudent/demo/proxy/reverse_proxy_https/testdata"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
+	"golang.org/x/net/http2"
 	"io/ioutil"
 	"math/rand"
 	"net"
@@ -19,6 +21,7 @@ var transport = &http.Transport{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
 	}).DialContext,
+	//TLSClientConfig:       &tls.Config{InsecureSkipVerify: true},
 	TLSClientConfig: func() *tls.Config {
 		pool := x509.NewCertPool()
 		caCertPath := testdata.Path("ca.crt")
@@ -28,7 +31,7 @@ var transport = &http.Transport{
 		return &tls.Config{
 			RootCAs: pool,
 		}
-	},
+	}(),
 	MaxIdleConns:          100,              //最大空闲连接
 	IdleConnTimeout:       90 * time.Second, //空闲超时时间
 	TLSHandshakeTimeout:   10 * time.Second, //tls握手超时时间
@@ -58,7 +61,11 @@ func NewMultipleHostsReverseProxy(targets []*url.URL) *httputil.ReverseProxy {
 
 	}
 
-	http2.ConfigureTransport(transport)
+	err := http2.ConfigureTransport(transport)
+	if err != nil {
+		fmt.Println("http2请求失败:", err)
+		return nil
+	}
 
 	return &httputil.ReverseProxy{
 		Director:  director,

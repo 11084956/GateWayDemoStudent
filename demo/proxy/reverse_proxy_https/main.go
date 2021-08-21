@@ -1,6 +1,7 @@
 package main
 
 import (
+	"GateWayDemoStudent/demo/proxy/reverse_proxy_https/public"
 	"GateWayDemoStudent/demo/proxy/reverse_proxy_https/testdata"
 	"log"
 	"net/http"
@@ -22,5 +23,8 @@ func main() {
 
 	log.Println("Starting httpserver at" + addr)
 
-	log.Fatal(http.ListenAndServeTLS(addr, testdata.Path("server.crt"), testdata.Path("server.key"), proxy))
+	log.Fatal(http.ListenAndServeTLS(addr,
+		testdata.Path("server.crt"),
+		testdata.Path("server.key"),
+		proxy))
 }
