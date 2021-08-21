@@ -19,7 +19,7 @@ func NewZkManager(hosts []string) *ZkManager {
 	}
 }
 
-//连接zk服务器
+// GetConnect 连接zk服务器
 func (z *ZkManager) GetConnect() error {
 	conn, _, err := zk.Connect(z.hosts, 5*time.Second)
 	if err != nil {
@@ -30,14 +30,14 @@ func (z *ZkManager) GetConnect() error {
 	return nil
 }
 
-//关闭服务
+// Close 关闭服务
 func (z *ZkManager) Close() {
 	z.conn.Close()
 
 	return
 }
 
-//获取配置
+// GetPathData 获取配置
 func (z *ZkManager) GetPathData(nodePath string) ([]byte, *zk.Stat, error) {
 	return z.conn.Get(nodePath)
 }
@@ -65,7 +65,7 @@ func (z *ZkManager) SetPathData(nodePath string, config []byte) error {
 	return nil
 }
 
-//创建零时节点
+// RegisterServerPath 创建零时节点
 func (z *ZkManager) RegisterServerPath(nodePath, host string) error {
 	ex, _, err := z.conn.Exists(nodePath)
 	if err != nil {
@@ -101,14 +101,14 @@ func (z *ZkManager) RegisterServerPath(nodePath, host string) error {
 	return nil
 }
 
-//获取服务列表
+// GetServerListByPath 获取服务列表
 func (z *ZkManager) GetServerListByPath(path string) ([]string, error) {
 	list, _, err := z.conn.Children(path)
 
 	return list, err
 }
 
-//watch机制,服务器有断开或者重连,收到消息
+// WatchServerListByPath watch机制,服务器有断开或者重连,收到消息
 func (z *ZkManager) WatchServerListByPath(path string) (chan []string, chan error) {
 	snapshots := make(chan []string)
 	errors := make(chan error)
@@ -133,7 +133,7 @@ func (z *ZkManager) WatchServerListByPath(path string) (chan []string, chan erro
 	return snapshots, errors
 }
 
-//watch机制,监听节点值变化
+// WatchPathData watch机制,监听节点值变化
 func (z *ZkManager) WatchPathData(nodePath string) (chan []byte, chan error) {
 	snapshots := make(chan []byte)
 	errors := make(chan error)
